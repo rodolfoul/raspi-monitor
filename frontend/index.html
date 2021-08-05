@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Monitoring</title>
+	<meta charset="UTF-8">
+	<script src="https://cdn.plot.ly/plotly-2.3.0.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
+	        integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ=="
+	        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</head>
+
+<body>
+<div id="plot-div"></div>
+
+<script>
+	$.ajax({
+		type: "GET",
+		url: "data",
+		success: function (data) {
+			let columns = parseCsv(data);
+
+			plotData(columns);
+		}
+	});
+
+	function parseCsv(csvString) {
+		let lines = csvString.split(/\r\n|\n/);
+		let headers = lines[0].split(",");
+
+		let timestamps = [];
+		let cpuTemperature = [];
+		let cpuUsage = [];
+		for (let i = 1; i < lines.length; i++) {
+			let currentLine = lines[i];
+			let columns = currentLine.split(",");
+
+			timestamps.push(new Date(columns[0]));
+			cpuUsage.push(columns[1]);
+			cpuTemperature.push(columns[2]);
+		}
+
+		return [timestamps, cpuTemperature, cpuUsage];
+	}
+
+	function plotData(columns) {
+		let timestamps = columns[0];
+		let cpuTemperatureString = "CPU Temperature °C";
+		let cpuUsageString = "CPU Usage %";
+
+		let trace1 = {
+			x: timestamps,
+			y: columns[1],
+			mode: "lines",
+			type: "scatter",
+			name: cpuTemperatureString,
+		};
+
+		let trace2 = {
+			x: timestamps,
+			y: columns[2],
+			mode: "lines",
+			type: "scatter",
+			name: cpuUsageString,
+			yaxis: "y2",
+		};
+
+		let data = [trace1, trace2];
+
+		let layout = {
+			yaxis: {title: cpuTemperatureString},
+			yaxis2: {
+				title: cpuUsageString,
+				titlefont: {color: "rgb(148, 103, 189)"},
+				tickfont: {color: "rgb(148, 103, 189)"},
+				overlaying: "y",
+				side: "right"
+			}
+		};
+
+		Plotly.newPlot("plot-div", data, layout);
+	}
+</script>
+</body>
+</html>
