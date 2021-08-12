@@ -8,18 +8,18 @@ repositories {
 
 jar {
     manifest {
-        attributes(
-                'Main-Class': 'RaspiLoggerKt'
-        )
+        attributes 'Main-Class': 'com.rl.raspimonitor.RaspiLoggerKt'
     }
     from {
         configurations.runtimeClasspath.collect {
             it.isDirectory() ? it : zipTree(it)
         }
     }
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
 dependencies {
     implementation group: 'com.google.guava', name: 'guava', version: '30.1.1-jre'
+    implementation group: 'org.apache.commons', name: 'commons-collections4', version: '4.4'
     implementation group: 'com.xenomachina', name: 'kotlin-argparser', version: '2.0.7'
 }
